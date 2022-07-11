@@ -6,12 +6,12 @@ import tokenService from "./token-service";
 import { UserDto } from "../dto";
 import { Collection } from "../database/Collection";
 import { Like } from "../database/Like";
-import { Comment } from "../database/Comment";
+import { Item } from "../database/Item";
+import fileService from "./file-service";
 
 class UserService {
   async registration(body: IUser) {
     const candidate = await User.findOne({ where: { email: body.email } });
-    console.log(candidate);
     if (candidate) {
       throw ApiError.BadRequest("User with this email already exist");
     }
@@ -42,6 +42,10 @@ class UserService {
     return id;
   }
 
+  async updateUsers(id: number[], body: any) {
+    return await User.update(body, { where: { id: id } });
+  }
+
   async refresh(refreshToken: string) {
     if (!refreshToken) throw ApiError.UnauthorizedError();
     const userData = tokenService.validateRefreshToken(refreshToken);
@@ -60,6 +64,27 @@ class UserService {
       return user;
     }
     throw ApiError.UnauthorizedError();
+  }
+
+  async bulkDelete(ids: number[]) {
+    const users = await User.findAll({
+      where: { id: ids },
+      include: [{ model: Collection, include: [Item] }],
+    });
+
+    users.forEach(async (user) => {
+      console.log(user);
+      user.Collections.forEach((collection) => {
+        collection.image && fileService.delete(collection.image);
+        (collection.Items as Item[]).forEach((item) =>
+          fileService.delete(item.image)
+        );
+      });
+
+      await user.destroy();
+    });
+
+    return ids;
   }
 
   async getUsers() {

@@ -51,7 +51,7 @@ router.get(
   collectionController.destroyItem.bind(collectionController)
 );
 
-router.get(
+router.post(
   "/getLastItems",
   collectionController.getLastItems.bind(collectionController)
 );
@@ -61,9 +61,11 @@ router.get(
   collectionController.getAllTags.bind(collectionController)
 );
 
+router.get("/search", collectionController.search.bind(collectionController));
+
 router.get(
-  "/search/:text",
-  collectionController.search.bind(collectionController)
+  "/getComments/:ItemId",
+  collectionController.getComments.bind(collectionController)
 );
 
 router.post(

@@ -1,4 +1,5 @@
 import { DataTypes, Model, Sequelize } from "@sequelize/core";
+import { Item } from "./Item";
 
 export class Collection extends Model {
   declare id: number;
@@ -6,8 +7,8 @@ export class Collection extends Model {
   declare description: string;
   declare theme: string;
   declare image: string;
-  declare fields: string;
   declare UserId: number;
+  declare Items: Item[];
 }
 
 export function initCollection(sequelize: Sequelize): void {

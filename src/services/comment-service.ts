@@ -12,6 +12,10 @@ class CommentService {
       return await Comment.create({ UserId, ItemId, text });
     throw ApiError.UnauthorizedError();
   }
+
+  async get(ItemId: number) {
+    return await Comment.findAll({ where: { ItemId } });
+  }
 }
 
 export default new CommentService();

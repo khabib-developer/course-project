@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "@sequelize/core";
 import { language, theme } from "../constants";
+import { Collection } from "./Collection";
 
 export class User extends Model {
   declare id: number;
@@ -10,6 +11,7 @@ export class User extends Model {
   declare admin: boolean;
   declare langauage: language.en | language.ru;
   declare theme: theme.dark | theme.light;
+  declare Collections: Collection[];
 }
 
 export function initUser(sequelize: any): void {

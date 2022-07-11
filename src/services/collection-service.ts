@@ -58,7 +58,22 @@ class CollectionService {
   async update(body: any) {
     const collection = await Collection.findOne({
       where: { id: body.id },
-      include: [User, { model: Item, include: [Tag, Like, Comment] }],
+      include: [
+        User,
+        AdditionalFields,
+        {
+          model: Item,
+          include: [
+            Tag,
+            Like,
+            Comment,
+            {
+              model: AdditionalFieldsValue,
+              attributes: additionalFieldAttributes,
+            },
+          ],
+        },
+      ],
     });
     body.image &&
       collection?.image &&
@@ -108,13 +123,56 @@ class CollectionService {
   }
 
   async search(text: string) {
-    const where: any = {
-      name: {
-        [Op.like]: `%${text}%`,
-      },
+    const searchText: any = {
+      [Op.like]: `%${text}%`,
     };
+    const where: any = {
+      [Op.or]: [
+        {
+          name: searchText,
+        },
+        {
+          "$Collection.name$": searchText,
+        },
+        {
+          "$Collection.description$": searchText,
+        },
+        {
+          "$Tags.name$": searchText,
+        },
+        {
+          "$Comments.text$": searchText,
+        },
+        {
+          "$AdditionalFieldsValue.string_1$": searchText,
+        },
+        {
+          "$AdditionalFieldsValue.string_2$": searchText,
+        },
+        {
+          "$AdditionalFieldsValue.string_3$": searchText,
+        },
+        {
+          "$AdditionalFieldsValue.text_1$": searchText,
+        },
+        {
+          "$AdditionalFieldsValue.text_2$": searchText,
+        },
+        {
+          "$AdditionalFieldsValue.text_3$": searchText,
+        },
+      ],
+    };
+
     return await Item.findAll({
       where,
+      include: [
+        { model: Collection, include: [User] },
+        Like,
+        Tag,
+        Comment,
+        AdditionalFieldsValue,
+      ],
     });
   }
 }

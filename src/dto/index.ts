@@ -17,5 +17,6 @@ export class UserDto {
     this.id = model.id;
     this.Collections = model.Collections || [];
     this.Likes = model.Likes || [];
+    this.admin = model.admin;
   }
 }

@@ -52,7 +52,7 @@ class CollectionController {
 
   async getLastItems(req: Request, res: Response, next: NextFunction) {
     try {
-      res.json(await itemService.getlastItems());
+      res.json(await itemService.getlastItems(req.body));
     } catch (error) {
       next(error);
     }
@@ -66,7 +66,7 @@ class CollectionController {
 
   async search(req: Request, res: Response, next: NextFunction) {
     try {
-      res.json(await collectionService.search(req.params.text));
+      res.json(await collectionService.search(req.query.q?.toString() || ""));
     } catch (error) {
       next(error);
     }
@@ -129,6 +129,14 @@ class CollectionController {
   async getAllTags(req: Request, res: Response, next: NextFunction) {
     try {
       res.json(await tagService.getAllTags());
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getComments(req: any, res: Response, next: NextFunction) {
+    try {
+      res.json(await commentService.get(req.params.ItemId));
     } catch (error) {
       next(error);
     }

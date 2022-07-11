@@ -21,7 +21,10 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: "http://localhost:3000",
+    origin:
+      process.env.NODE_ENV !== "production"
+        ? "http://localhost:3000"
+        : "https://metafor.uz",
     optionsSuccessStatus: 200,
   })
 );
@@ -30,7 +33,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(bodyParser.json());
 
-app.use("/static", express.static(path.resolve(__dirname, "..", "static")));
+const url: any =
+  process.env.NODE_ENV !== "production"
+    ? path.resolve(__dirname, "..", "static")
+    : path.resolve(__dirname, "static");
+
+app.use("/static", express.static(url));
 
 app.use("/auth", userRouter.default);
 app.use("/file", fileRouter.default);

@@ -2,8 +2,13 @@ export enum database {
   db_name = "course_project",
   db_user = "root", //khabibfortask4
   db_password = "root", //yyH46WdPVcCRMTn
-  host = "localhost",
   port = "8889",
+}
+
+export enum database_production {
+  db_name = "course_project",
+  db_user = "khabib_course_project",
+  db_password = "Of89~zv8",
 }
 
 export enum language {

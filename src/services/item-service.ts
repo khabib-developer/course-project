@@ -93,8 +93,10 @@ class ItemService {
     return item;
   }
 
-  async getlastItems() {
-    return await Item.findAll({
+  async getlastItems(body: any) {
+    const { count } = await Item.findAndCountAll();
+
+    const { rows } = await Item.findAndCountAll({
       include: [
         { model: Collection, include: [User] },
         Like,
@@ -103,8 +105,10 @@ class ItemService {
         AdditionalFieldsValue,
       ],
       order: [["id", "DESC"]],
-      limit: 10,
+      ...body,
     });
+
+    return { rows, count };
   }
 }
 export default new ItemService();

@@ -13,7 +13,8 @@ class Auth {
       this.validation(req, next);
       await this.responseUserData(
         res,
-        await userService.registration(req.body)
+        await userService.registration(req.body),
+        next
       );
     } catch (error) {
       next(error);
@@ -23,8 +24,9 @@ class Auth {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       this.validation(req, next);
-      await this.responseUserData(res, await userService.login(req.body));
+      await this.responseUserData(res, await userService.login(req.body), next);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }
@@ -33,7 +35,8 @@ class Auth {
     try {
       this.responseUserData(
         res,
-        await userService.refresh(req.cookies.refreshToken)
+        await userService.refresh(req.cookies.refreshToken),
+        next
       );
     } catch (error) {
       next(error);
@@ -58,25 +61,30 @@ class Auth {
     }
   }
 
-  async responseUserData(res: Response, user: User) {
-    const { userData, accessToken, refreshToken } = tokenService.generateToken({
-      ...new UserDto(user),
-    });
-    await tokenService.saveToken(user.id, refreshToken);
-    console.log(refreshToken);
-    res.cookie("refreshToken", refreshToken, {
-      maxAge: 1 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    });
-    res.json({ user: userData, accessToken });
+  async responseUserData(res: Response, user: User, next: NextFunction) {
+    try {
+      const { userData, accessToken, refreshToken } =
+        tokenService.generateToken({
+          ...new UserDto(user),
+        });
+      await tokenService.saveToken(user.id, refreshToken);
+      res.cookie("refreshToken", refreshToken, {
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+      });
+      res.json({ user: userData, accessToken });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
   }
 
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
-      const token = await tokenService.removeToken(refreshToken);
+      await tokenService.removeToken(refreshToken);
       res.clearCookie("refreshToken");
-      res.json(token);
+      res.json({ ok: false });
     } catch (error) {
       next(error);
     }
@@ -85,6 +93,30 @@ class Auth {
   async check(req: any, res: Response, next: NextFunction) {
     try {
       res.json(await userService.checkUser(req.user.id));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAll(req: any, res: Response, next: NextFunction) {
+    try {
+      res.json(await userService.getUsers());
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateUsers(req: any, res: Response, next: NextFunction) {
+    try {
+      res.json(await userService.updateUsers(req.body.ids, req.body.fields));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async bulkDelete(req: any, res: Response, next: NextFunction) {
+    try {
+      res.json(await userService.bulkDelete(req.body.ids));
     } catch (error) {
       next(error);
     }

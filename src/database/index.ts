@@ -1,5 +1,5 @@
 import { Sequelize, Model, DataTypes } from "@sequelize/core";
-import { database } from "../constants";
+import { database, database_production } from "../constants";
 import { AdditionalFields, initAdditioanlFields } from "./AdditionalFields";
 import {
   AdditionalFieldsValue,
@@ -13,15 +13,26 @@ import { initTag, Tag } from "./Tag";
 import { initToken, Token } from "./Token";
 import { initUser, User } from "./User";
 
+const options: any = {
+  dialect: "mysql",
+  host: "localhost",
+};
+
+if (process.env.NODE_ENV !== "production") {
+  options.port = Number(database.port);
+}
+
 export const sequelize = new Sequelize(
-  database.db_name,
-  database.db_user,
-  database.db_password,
-  {
-    dialect: "mysql",
-    host: "localhost",
-    port: Number(database.port),
-  }
+  process.env.NODE_ENV !== "production"
+    ? database.db_name
+    : database_production.db_name,
+  process.env.NODE_ENV !== "production"
+    ? database.db_user
+    : database_production.db_user,
+  process.env.NODE_ENV !== "production"
+    ? database.db_password
+    : database_production.db_password,
+  options
 );
 
 initUser(sequelize);

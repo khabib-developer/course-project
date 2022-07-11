@@ -5,8 +5,11 @@ import randomstring from "randomstring";
 const storage = multer.diskStorage({
   destination: (req: any, file: any, cb: any) => {
     try {
-      console.log(2);
-      cb(null, path.join(path.dirname(__dirname), "..", `/static/images/`));
+      const url: any =
+        process.env.NODE_ENV !== "production"
+          ? path.join(path.dirname(__dirname), "..", `/static/images/`)
+          : path.join(path.dirname(__dirname), `/static/images/`);
+      cb(null, url);
     } catch (error) {
       console.log(error);
     }
