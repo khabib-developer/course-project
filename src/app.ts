@@ -21,10 +21,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin:
-      process.env.NODE_ENV !== "production"
-        ? "http://localhost:3000"
-        : "https://metafor.uz",
+    origin: true,
     optionsSuccessStatus: 200,
   })
 );
@@ -38,7 +35,7 @@ const url: any =
     ? path.resolve(__dirname, "..", "static")
     : path.resolve(__dirname, "static");
 
-app.use("/static", express.static(url));
+app.use("/static", express.static(path.resolve(__dirname, "..", "static")));
 
 app.use("/auth", userRouter.default);
 app.use("/file", fileRouter.default);
@@ -48,14 +45,19 @@ app.use(errorMiddleware);
 
 const start = async () => {
   try {
-    // await sequelize.sync();
+    await sequelize.sync();
 
     await sequelize.authenticate();
 
-    if (process.env.NODE_ENV === "production") {
-      app.use("/", express.static(path.join(__dirname, "client", "build")));
+    if (process.env.NODE_ENV === "development") {
+      app.use(
+        "/",
+        express.static(path.join(__dirname, "..", "client", "build"))
+      );
       app.use("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+        res.sendFile(
+          path.resolve(__dirname, "..", "client", "build", "index.html")
+        );
       });
     }
 

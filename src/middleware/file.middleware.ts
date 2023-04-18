@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
         process.env.NODE_ENV !== "production"
           ? path.join(path.dirname(__dirname), "..", `/static/images/`)
           : path.join(path.dirname(__dirname), `/static/images/`);
-      cb(null, url);
+      cb(null, path.join(path.dirname(__dirname), "..", `/static/images/`));
     } catch (error) {
       console.log(error);
     }
